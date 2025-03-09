@@ -4,12 +4,22 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+var cfg *Config
+
 type Config struct {
-	Database DatabaseConfig
+	Database      DatabaseConfig
+	Authenticator Authenticator
 }
 
 func Init() *Config {
-	return &Config{
-		Database: initDBConfig(),
+	cfg = &Config{
+		Database:      initDBConfig(),
+		Authenticator: initAuthenticator(),
 	}
+
+	return cfg
+}
+
+func Get() *Config {
+	return cfg
 }

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"backend/config"
 	"backend/internal/models"
 	"backend/internal/repository"
 	"backend/utils"
@@ -8,17 +9,21 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type service struct {
+	cfg            *config.Config
 	userRepository repository.IUserRepository
 }
 
 func NewService(
+	cfg *config.Config,
 	userRepository repository.IUserRepository,
 ) IAuth {
 	return &service{
+		cfg:            cfg,
 		userRepository: userRepository,
 	}
 }
@@ -53,6 +58,15 @@ func (s *service) Login(credentials *models.UserLoginParams) (string, error) {
 	token, err := utils.GenerateJWT(user.ID)
 	if err != nil {
 		return "", err
+	}
+
+	return token, nil
+}
+
+func (s *service) ValidateJWT(tokenString string) (jwt.MapClaims, error) {
+	token, err := utils.ValidateJWT(tokenString)
+	if err != nil {
+		return nil, err
 	}
 
 	return token, nil

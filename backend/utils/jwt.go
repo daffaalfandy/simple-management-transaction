@@ -1,30 +1,27 @@
 package utils
 
 import (
-	"os"
-	"strconv"
+	"backend/config"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var secret = []byte(os.Getenv("SECRET_KEY"))
-var expirationTime = os.Getenv("EXPIRATION_TIME")
-
 func GenerateJWT(userID uint) (string, error) {
-	expTime, _ := strconv.Atoi(expirationTime)
 	claims := jwt.MapClaims{
 		"user_id": userID,
-		"exp":     time.Now().Add(time.Hour * time.Duration(expTime)).Unix(),
+		"exp":     time.Now().Add(time.Hour * time.Duration(config.Get().Authenticator.GetExpire())).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(secret)
+	return token.SignedString([]byte(config.Get().Authenticator.GetSecret()))
 }
 
 func ValidateJWT(tokenString string) (jwt.MapClaims, error) {
+	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
-		return secret, nil
+		return []byte(config.Get().Authenticator.GetSecret()), nil
 	})
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {

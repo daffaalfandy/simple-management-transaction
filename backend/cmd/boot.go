@@ -28,7 +28,7 @@ func Init() *mux.Router {
 
 	userRepo = repository.NewRepository(db)
 
-	autService = authSvc.NewService(userRepo)
+	autService = authSvc.NewService(config, userRepo)
 
 	authHandler = authHndl.NewHandler(db, autService)
 

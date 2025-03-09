@@ -18,9 +18,8 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         try {
-            $user = $this->authService->register($request->all());
-            Session::put('token', $user->token);
-    
+            $this->authService->register($request->all());
+
             return redirect('/login')->with('success', 'Registration successful! Please login.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
@@ -32,8 +31,8 @@ class AuthController extends Controller
         try {
             $token = $this->authService->login($request->all());
             Session::put('token', $token['token']);
-    
-            return redirect('/');
+            
+            return redirect('/dashboard')->with('success', 'Login successful!');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }

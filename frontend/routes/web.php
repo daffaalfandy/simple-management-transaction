@@ -20,3 +20,7 @@ Route::get('/login', function () {
 });
 
 Route::get('/logout', [AuthController::class, 'logout'])->middleware(Authenticate::class);
+
+Route::get('/dashboard', function () {
+    return view('user.dashboard');
+})->middleware(Authenticate::class);

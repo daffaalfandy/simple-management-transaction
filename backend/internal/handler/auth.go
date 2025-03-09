@@ -46,3 +46,13 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	utils.ParseJSON(w, r, utils.SuccessResponse(map[string]string{"token": token}), http.StatusOK)
 }
+
+func (h *Handler) ValidateJWT(w http.ResponseWriter, r *http.Request) {
+	claims, err := h.authService.ValidateJWT(r.Header.Get("Authorization"))
+	if err != nil {
+		utils.ParseJSON(w, r, utils.ErrorResponse(err), http.StatusUnauthorized)
+		return
+	}
+
+	utils.ParseJSON(w, r, utils.SuccessResponse(claims), http.StatusOK)
+}

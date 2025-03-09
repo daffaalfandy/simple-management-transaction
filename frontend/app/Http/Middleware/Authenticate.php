@@ -11,20 +11,20 @@ class Authenticate
 {
     public function handle(Request $request, Closure $next)
     {
-        if (!Session::has('jwt_token')) {
+        if (!Session::has('token')) {
             return redirect('/login');
         }
 
         // Validate JWT token with the backend
-        $token = Session::get('jwt_token');
-        $backendUrl = env('GO_BACKEND_URL') . '/validate-token';
+        $token = Session::get('token');
+        $backendUrl = env('BACKEND_HOST') . ":" . env('BACKEND_PORT') . '/api/auth/validate';
 
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $token,
         ])->get($backendUrl);
-
+        
         if ($response->failed()) {
-            Session::forget('jwt_token');
+            Session::forget('token');
             return redirect('/login')->withErrors(['error' => 'Session expired. Please log in again.']);
         }
 

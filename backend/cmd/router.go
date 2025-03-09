@@ -16,4 +16,5 @@ func initAppRouter(r *mux.Router) {
 
 	apiGroup.HandleFunc("/auth/register", authHandler.Register).Methods("POST")
 	apiGroup.HandleFunc("/auth/login", authHandler.Login).Methods("POST")
+	apiGroup.HandleFunc("/auth/validate", authHandler.ValidateJWT).Methods("GET")
 }
