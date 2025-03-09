@@ -1,25 +1,28 @@
 package repository
 
 import (
-	"backend/config"
 	"backend/internal/models"
+	"database/sql"
 )
 
-func FetchUsers() ([]models.User, error) {
-	rows, err := config.DB.Query("SELECT id, name, email FROM users")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
+type repository struct {
+	db *sql.DB
+}
 
-	var users []models.User
-	for rows.Next() {
-		var user models.User
-		if err := rows.Scan(&user.ID, &user.Name, &user.Email); err != nil {
-			return nil, err
-		}
-		users = append(users, user)
-	}
+func NewRepository(db *sql.DB) IUserRepository {
+	return &repository{db: db}
+}
 
-	return users, nil
+func (r *repository) CreateUser(user *models.User) error {
+	_, err := r.db.Exec("INSERT INTO users (name, email, password) VALUES (?, ?, ?)", user.Name, user.Email, user.Password)
+
+	return err
+}
+
+func (r *repository) FindByEmail(email string) (*models.User, error) {
+	var user models.User
+	err := r.db.QueryRow("SELECT id, name, email, password FROM users WHERE email = ?", email).
+		Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+
+	return &user, err
 }
